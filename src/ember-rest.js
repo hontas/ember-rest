@@ -114,10 +114,10 @@ Ember.Resource = Ember.Object.extend(Ember.ResourceAdapter, Ember.Copyable, {
         prop,
         ret = {};
 
-    ret[name] = {};
+    if (name) { ret = ret[name] = {}; }
     for(var i = 0; i < props.length; i++) {
       prop = props[i];
-      ret[name][prop] = this.serializeProperty(prop);
+      ret[prop] = this.serializeProperty(prop);
     }
     return ret;
   },
@@ -128,7 +128,21 @@ Ember.Resource = Ember.Object.extend(Ember.ResourceAdapter, Ember.Copyable, {
     Override to provide custom serialization
   */
   serializeProperty: function(prop) {
-    return this.get(prop);
+    var property = this.get(prop);
+    if ("[object Object]" === Object.prototype.toString.call(property)) {
+        return this.serializeNestedResource(property);
+    } else if ("[object Array]" === Object.prototype.toString.call(property)) {
+        return property.map(this.serializeNestedResource);
+    } else {
+        return property;
+    }
+  },
+  
+  /**
+    Recursively generate nested resource's JSON representation
+   */
+  serializeNestedResource: function(resource) {
+      return resource.resourceProperties ? resource.serialize() : resource;
   },
 
   /**
