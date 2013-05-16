@@ -114,7 +114,11 @@ Ember.Resource = Ember.Object.extend(Ember.ResourceAdapter, Ember.Copyable, {
         prop,
         ret = {};
 
-    if (name) { ret = ret[name] = {}; }
+    if (name) {
+      var obj = {};
+      obj[name] = {};
+      ret = obj;
+    }
     for(var i = 0; i < props.length; i++) {
       prop = props[i];
       ret[prop] = this.serializeProperty(prop);
